@@ -1,10 +1,48 @@
-import 'package:flutter/material.dart';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:robocop_do_corte/main.dart';
+import 'package:material_ui/material_ui.dart';
+
+Future<void> abrirApp(WidgetTester tester) async {
+  await tester.pumpWidget(const RobocopApp());
+  await tester.pumpAndSettle();
+}
+
+Future<void> cadastrarCliente(WidgetTester tester) async {
+  await abrirApp(tester);
+
+  await tester.tap(find.text('CADASTRAR'));
+  await tester.pumpAndSettle();
+
+  final campos = find.byType(TextFormField);
+
+  await tester.ensureVisible(campos.at(0));
+  await tester.enterText(campos.at(0), 'Cliente Teste');
+
+  await tester.ensureVisible(campos.at(1));
+  await tester.enterText(campos.at(1), '71999999999');
+
+  await tester.ensureVisible(campos.at(2));
+  await tester.enterText(campos.at(2), 'teste@email.com');
+
+  await tester.ensureVisible(campos.at(3));
+  await tester.enterText(campos.at(3), '123456');
+
+  await tester.ensureVisible(find.text('CRIAR CONTA'));
+  await tester.tap(find.text('CRIAR CONTA'));
+  await tester.pumpAndSettle();
+}
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets('Exibe a tela inicial', (tester) async {
-    await tester.pumpWidget(const RobocopApp());
+    await abrirApp(tester);
 
     expect(find.text('ROBOCOP'), findsOneWidget);
     expect(find.text('DO CORTE'), findsOneWidget);
@@ -12,7 +50,7 @@ void main() {
   });
 
   testWidgets('Abre a tela de cadastro', (tester) async {
-    await tester.pumpWidget(const RobocopApp());
+    await abrirApp(tester);
 
     await tester.tap(find.text('CADASTRAR'));
     await tester.pumpAndSettle();
@@ -22,18 +60,32 @@ void main() {
     expect(find.text('Nome completo'), findsOneWidget);
   });
 
-  testWidgets('Abre a tela de agendamento', (tester) async {
-    await tester.pumpWidget(const RobocopApp());
+  testWidgets('Visitante é direcionado ao login ao tentar agendar',
+      (tester) async {
+    await abrirApp(tester);
 
     await tester.tap(find.text('AGENDAR HORÁRIO'));
     await tester.pumpAndSettle();
 
-    expect(find.text('AGENDAR HORÁRIO'), findsOneWidget);
+    expect(find.text('ACESSE SUA CONTA'), findsOneWidget);
+    expect(find.text('ENTRAR'), findsWidgets);
+  });
+
+  testWidgets('Cliente cadastrado consegue acessar o agendamento',
+      (tester) async {
+    await cadastrarCliente(tester);
+
+    expect(find.text('OLÁ, CLIENTE TESTE!'), findsOneWidget);
+
+    await tester.tap(find.text('AGENDAR HORÁRIO'));
+    await tester.pumpAndSettle();
+
     expect(find.text('RESERVE SEU HORÁRIO'), findsOneWidget);
+    expect(find.text('Cliente: Cliente Teste'), findsOneWidget);
   });
 
   testWidgets('Exibe as opções de serviços no agendamento', (tester) async {
-    await tester.pumpWidget(const RobocopApp());
+    await cadastrarCliente(tester);
 
     await tester.tap(find.text('AGENDAR HORÁRIO'));
     await tester.pumpAndSettle();
@@ -50,7 +102,7 @@ void main() {
   });
 
   testWidgets('Valida agendamento sem preenchimento', (tester) async {
-    await tester.pumpWidget(const RobocopApp());
+    await cadastrarCliente(tester);
 
     await tester.tap(find.text('AGENDAR HORÁRIO'));
     await tester.pumpAndSettle();
