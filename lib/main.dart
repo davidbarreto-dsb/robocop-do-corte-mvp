@@ -133,10 +133,12 @@ class TelaInicial extends StatelessWidget {
                     height: 55,
                     child: OutlinedButton(
                       onPressed: () {
-                        mostrarMensagem(
+                        Navigator.push(
                           context,
-                          'Cadastro em desenvolvimento.',
-                        );
+                          MaterialPageRoute(
+                            builder: (context) => const TelaCadastro(),
+                         ),
+                       );
                       },
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.white,
@@ -376,6 +378,243 @@ class CartaoServico extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class TelaCadastro extends StatefulWidget {
+  const TelaCadastro({super.key});
+
+  @override
+  State<TelaCadastro> createState() => _TelaCadastroState();
+}
+
+class _TelaCadastroState extends State<TelaCadastro> {
+  final _formKey = GlobalKey<FormState>();
+
+  bool _mostrarSenha = false;
+
+  void _cadastrar() {
+    if (_formKey.currentState!.validate()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Cadastro validado com sucesso!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('CADASTRO DE CLIENTE'),
+        backgroundColor: const Color(0xFF080D12),
+        foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: azulNeon),
+      ),
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF101820),
+              Color(0xFF05090D),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Icon(
+                    Icons.person_add_alt_1,
+                    size: 65,
+                    color: azulNeon,
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  const Text(
+                    'CRIE SUA CONTA',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: azulNeon,
+                      fontSize: 23,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  const Text(
+                    'Preencha seus dados para começar.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white70),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  _campo(
+                    rotulo: 'Nome completo',
+                    icone: Icons.person_outline,
+                    mensagem: 'Informe seu nome.',
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  _campo(
+                    rotulo: 'Telefone / WhatsApp',
+                    icone: Icons.phone_outlined,
+                    mensagem: 'Informe seu telefone.',
+                    teclado: TextInputType.phone,
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  _campo(
+                    rotulo: 'E-mail',
+                    icone: Icons.email_outlined,
+                    mensagem: 'Informe um e-mail válido.',
+                    teclado: TextInputType.emailAddress,
+                    email: true,
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  TextFormField(
+                    obscureText: !_mostrarSenha,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      labelText: 'Senha',
+                      labelStyle: const TextStyle(
+                        color: Colors.white70,
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.lock_outline,
+                        color: azulNeon,
+                      ),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _mostrarSenha = !_mostrarSenha;
+                          });
+                        },
+                        icon: Icon(
+                          _mostrarSenha
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: azulNeon,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(
+                          color: azulNeon,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(
+                          color: azulNeon,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    validator: (valor) {
+                      if (valor == null || valor.length < 6) {
+                        return 'A senha deve ter pelo menos 6 caracteres.';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  SizedBox(
+                    height: 55,
+                    child: ElevatedButton(
+                      onPressed: _cadastrar,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: azulNeon,
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'CRIAR CONTA',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      'VOLTAR AO INÍCIO',
+                      style: TextStyle(color: dourado),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _campo({
+    required String rotulo,
+    required IconData icone,
+    required String mensagem,
+    TextInputType teclado = TextInputType.text,
+    bool email = false,
+  }) {
+    return TextFormField(
+      keyboardType: teclado,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: rotulo,
+        labelStyle: const TextStyle(color: Colors.white70),
+        prefixIcon: Icon(icone, color: azulNeon),
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: azulNeon),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(
+            color: azulNeon,
+            width: 2,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      validator: (valor) {
+        if (valor == null || valor.trim().isEmpty) {
+          return mensagem;
+        }
+
+        if (email && !valor.contains('@')) {
+          return 'Digite um e-mail válido.';
+        }
+
+        return null;
+      },
     );
   }
 }
