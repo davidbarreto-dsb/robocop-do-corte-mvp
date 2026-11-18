@@ -159,6 +159,39 @@ class TelaInicial extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 18),
+
+                  // Botão Agendar Horário
+                  SizedBox(
+                    width: double.infinity,
+                    height: 55,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const TelaAgendamento(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.calendar_month),
+                      label: const Text(
+                        'AGENDAR HORÁRIO',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: dourado,
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
 
                   const SizedBox(height: 18),
 
@@ -615,6 +648,302 @@ class _TelaCadastroState extends State<TelaCadastro> {
 
         return null;
       },
+    );
+  }
+}
+
+class TelaAgendamento extends StatefulWidget {
+  const TelaAgendamento({super.key});
+
+  @override
+  State<TelaAgendamento> createState() => _TelaAgendamentoState();
+}
+
+class _TelaAgendamentoState extends State<TelaAgendamento> {
+  final _formKey = GlobalKey<FormState>();
+
+  String? _servicoSelecionado;
+  DateTime? _dataSelecionada;
+  TimeOfDay? _horarioSelecionado;
+
+  Future<void> _selecionarData() async {
+    final data = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(
+        const Duration(days: 90),
+      ),
+      helpText: 'Selecione a data',
+      cancelText: 'CANCELAR',
+      confirmText: 'CONFIRMAR',
+    );
+
+    if (data != null) {
+      setState(() {
+        _dataSelecionada = data;
+      });
+    }
+  }
+
+  Future<void> _selecionarHorario() async {
+    final horario = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      helpText: 'Selecione o horário',
+      cancelText: 'CANCELAR',
+      confirmText: 'CONFIRMAR',
+    );
+
+    if (horario != null) {
+      setState(() {
+        _horarioSelecionado = horario;
+      });
+    }
+  }
+
+  void _confirmarAgendamento() {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (_dataSelecionada == null || _horarioSelecionado == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Selecione a data e o horário.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Agendamento preenchido com sucesso! '
+          'A confirmação depende da barbearia.',
+        ),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('AGENDAR HORÁRIO'),
+        backgroundColor: const Color(0xFF080D12),
+        foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: azulNeon),
+      ),
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF101820),
+              Color(0xFF05090D),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Icon(
+                    Icons.calendar_month,
+                    size: 65,
+                    color: azulNeon,
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  const Text(
+                    'RESERVE SEU HORÁRIO',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: azulNeon,
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  const Text(
+                    'Escolha o serviço, a data e o horário desejados.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white70),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  const Text(
+                    'Selecione o serviço',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  DropdownButtonFormField<String>(
+                    initialValue: _servicoSelecionado,
+                    dropdownColor: const Color(0xFF1B2833),
+                    decoration: InputDecoration(
+                      prefixIcon: const Icon(
+                        Icons.content_cut,
+                        color: azulNeon,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: azulNeon),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    hint: const Text(
+                      'Escolha um serviço',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'Corte Masculino',
+                        child: Text('Corte Masculino'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Barba',
+                        child: Text('Barba'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Corte + Barba',
+                        child: Text('Corte + Barba'),
+                      ),
+                    ],
+                    onChanged: (valor) {
+                      setState(() {
+                        _servicoSelecionado = valor;
+                      });
+                    },
+                    validator: (valor) {
+                      if (valor == null) {
+                        return 'Selecione um serviço.';
+                      }
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  const Text(
+                    'Escolha a data',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  OutlinedButton.icon(
+                    onPressed: _selecionarData,
+                    icon: const Icon(
+                      Icons.calendar_today,
+                      color: azulNeon,
+                    ),
+                    label: Text(
+                      _dataSelecionada == null
+                          ? 'SELECIONAR DATA'
+                          : '${_dataSelecionada!.day.toString().padLeft(2, '0')}/'
+                            '${_dataSelecionada!.month.toString().padLeft(2, '0')}/'
+                            '${_dataSelecionada!.year}',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: azulNeon),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  const Text(
+                    'Escolha o horário',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  OutlinedButton.icon(
+                    onPressed: _selecionarHorario,
+                    icon: const Icon(
+                      Icons.access_time,
+                      color: azulNeon,
+                    ),
+                    label: Text(
+                      _horarioSelecionado == null
+                          ? 'SELECIONAR HORÁRIO'
+                          : _horarioSelecionado!.format(context),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: azulNeon),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
+
+                  const SizedBox(height: 35),
+
+                  SizedBox(
+                    height: 55,
+                    child: ElevatedButton.icon(
+                      onPressed: _confirmarAgendamento,
+                      icon: const Icon(Icons.check_circle_outline),
+                      label: const Text(
+                        'CONFIRMAR AGENDAMENTO',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: azulNeon,
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      'VOLTAR',
+                      style: TextStyle(color: dourado),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
